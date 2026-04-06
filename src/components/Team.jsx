@@ -1,5 +1,4 @@
-import EditableMedia from './EditableMedia';
-import EditableText from './EditableText';
+import { useLego, bindProps, getImageUrl } from '../lib/LegoUtils';
 
 const Team = ({ data, sectionName }) => {
     if (!data || data.length === 0) return null;
@@ -18,20 +17,29 @@ const Team = ({ data, sectionName }) => {
                         const bioKey = Object.keys(item).find(k => /tekst|bio|beschrijving/i.test(k)) || 'bio';
                         const imgKey = Object.keys(item).find(k => /foto|afbeelding/i.test(k)) || 'foto';
 
+                        const naamRes = useLego(item, naamKey, "");
+                        const rolRes  = useLego(item, rolKey, "");
+                        const bioRes  = useLego(item, bioKey, "");
+                        const imgRes  = useLego(item, imgKey, "");
+
                         return (
                             <div key={index} className="flex flex-col items-center text-center group">
                                 <div className="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-white shadow-2xl group-hover:scale-105 transition-transform duration-300 ring-4 ring-transparent hover:ring-accent/30 relative">
-                                    <EditableMedia src={item[imgKey]} cmsBind={{ file: sectionName, index, key: imgKey }} className="w-full h-full object-cover" />
+                                    <img 
+                                        src={getImageUrl(imgRes.content)} 
+                                        className="w-full h-full object-cover" 
+                                        {...bindProps(imgRes, sectionName, index, 'image')} 
+                                    />
                                 </div>
-                                <h3 className="text-xl font-bold text-primary mb-1">
-                                    <EditableText value={item[naamKey]} cmsBind={{ file: sectionName, index, key: naamKey }} />
+                                <h3 className="text-xl font-bold text-primary mb-1" {...bindProps(naamRes, sectionName, index, 'text')}>
+                                    {naamRes.content}
                                 </h3>
-                                <div className="text-sm font-bold text-accent uppercase tracking-widest mb-4">
-                                    <EditableText value={item[rolKey]} cmsBind={{ file: sectionName, index, key: rolKey }} />
+                                <div className="text-sm font-bold text-accent uppercase tracking-widest mb-4" {...bindProps(rolRes, sectionName, index, 'text')}>
+                                    {rolRes.content}
                                 </div>
-                                {bioKey && (
-                                    <p className="text-slate-600 text-sm leading-relaxed max-w-xs mx-auto">
-                                        <EditableText value={item[bioKey]} cmsBind={{ file: sectionName, index, key: bioKey }} />
+                                {bioRes.content && (
+                                    <p className="text-slate-600 text-sm leading-relaxed max-w-xs mx-auto" {...bindProps(bioRes, sectionName, index, 'text')}>
+                                        {bioRes.content}
                                     </p>
                                 )}
                             </div>

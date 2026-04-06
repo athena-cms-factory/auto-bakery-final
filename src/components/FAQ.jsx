@@ -1,4 +1,5 @@
-import EditableText from './EditableText';
+import React from 'react';
+import { useLego, bindProps } from '../lib/LegoUtils';
 
 const FAQ = ({ data, sectionName }) => {
     if (!data || data.length === 0) return null;
@@ -15,16 +16,22 @@ const FAQ = ({ data, sectionName }) => {
                         const vraagKey = Object.keys(item).find(k => /vraag|titel/i.test(k)) || 'vraag';
                         const antwoordKey = Object.keys(item).find(k => /antwoord|tekst|beschrijving/i.test(k)) || 'antwoord';
 
+                        const vraagRes = useLego(item, vraagKey, "");
+                        const antwoordRes = useLego(item, antwoordKey, "");
+
                         return (
                             <details key={index} className="group bg-white rounded-3xl shadow-lg border border-slate-100 open:shadow-xl transition-all duration-300 overflow-hidden">
                                 <summary className="p-6 md:p-8 cursor-pointer list-none flex items-center justify-between font-bold text-lg md:text-xl text-primary select-none hover:bg-slate-50 transition-colors">
-                                    <span><EditableText value={item[vraagKey]} cmsBind={{ file: sectionName, index, key: vraagKey }} /></span>
+                                    <span {...bindProps(vraagRes, sectionName, index, 'text')}>{vraagRes.content}</span>
                                     <span className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent transition-transform duration-300 group-open:rotate-180">
                                         <i className="fa-solid fa-chevron-down"></i>
                                     </span>
                                 </summary>
-                                <div className="px-6 md:px-8 pb-8 text-slate-600 leading-relaxed border-t border-slate-100/50 pt-6 animate-reveal">
-                                    <EditableText value={item[antwoordKey]} cmsBind={{ file: sectionName, index, key: antwoordKey }} />
+                                <div 
+                                    className="px-6 md:px-8 pb-8 text-slate-600 leading-relaxed border-t border-slate-100/50 pt-6 animate-reveal"
+                                    {...bindProps(antwoordRes, sectionName, index, 'text')}
+                                >
+                                    {antwoordRes.content}
                                 </div>
                             </details>
                         );

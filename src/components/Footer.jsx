@@ -1,16 +1,27 @@
-import EditableText from './EditableText';
-import EditableLink from './EditableLink';
+import React from 'react';
+import { useLego, bindProps } from '../lib/LegoUtils';
 
 export default function Footer({ data }) {
   const settingsSource = data?.site_settings || {};
   const settings = Array.isArray(settingsSource) ? (settingsSource[0] || {}) : settingsSource;
   const contactInfo = data?.contact?.[0] || {};
 
-  const naam = settings.site_name || "auto-bakery-final";
-  const email = contactInfo.email || settings.email || '';
-  const locatie = contactInfo.location || '';
-  const btw = contactInfo.btw_nummer || contactInfo.btw || '';
-  const linkedin = contactInfo.linkedin_url || contactInfo.linkedin || '';
+  // site_settings bindings
+  const naamRes         = useLego(settings, 'site_name', "auto-bakery-final");
+  const taglineRes      = useLego(settings, 'tagline', "");
+  const contactTitleRes = useLego(settings, 'footer_contact_title', 'Contact');
+  const legalTitleRes   = useLego(settings, 'footer_legal_title', 'Bedrijfsgegevens');
+  const footerTextRes   = useLego(settings, 'footer_text', 'Professionele website geleverd door Athena CMS Factory.');
+  const creditTextRes   = useLego(settings, 'footer_credit_text', 'Gemaakt met Athena CMS Factory');
+
+  // contact bindings
+  const emailRes    = useLego(contactInfo, 'email', settings.email || '');
+  const locationRes = useLego(contactInfo, 'location', '');
+  const btwRes      = useLego(contactInfo, 'btw_nummer', contactInfo.btw || '');
+  const linkedinRes = useLego(contactInfo, 'linkedin_url', '');
+
+  const sectionSettings = 'site_settings';
+  const sectionContact  = 'contact';
 
   return (
     <footer
@@ -24,45 +35,44 @@ export default function Footer({ data }) {
 
           {/* Brand Identity */}
           <div className="space-y-6">
-            <h3 className="text-3xl font-serif font-bold text-white">
-              <EditableText value={naam} cmsBind={{ file: 'site_settings', index: 0, key: 'site_name' }} />
+            <h3 className="text-3xl font-serif font-bold text-white" {...bindProps(naamRes, sectionSettings, 0, 'text')}>
+              {naamRes.content}
             </h3>
-            {settings.tagline && (
-              <p className="text-lg leading-relaxed font-light">
-                <EditableText value={settings.tagline} cmsBind={{ file: 'site_settings', index: 0, key: 'tagline' }} />
+            {taglineRes.content && (
+              <p className="text-lg leading-relaxed font-light" {...bindProps(taglineRes, sectionSettings, 0, 'text')}>
+                {taglineRes.content}
               </p>
             )}
           </div>
 
           {/* Contact Details */}
           <div className="space-y-6">
-            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-accent">
-              <EditableText value={settings.footer_contact_title || 'Contact'} cmsBind={{ file: 'site_settings', index: 0, key: 'footer_contact_title' }} />
+            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-accent" {...bindProps(contactTitleRes, sectionSettings, 0, 'text')}>
+              {contactTitleRes.content}
             </h4>
             <ul className="space-y-4">
-              {email && (
+              {emailRes.content && (
                 <li className="flex items-center gap-4">
                   <i className="fa-solid fa-envelope text-accent w-5"></i>
-                  <EditableText value={email} cmsBind={{ file: 'contact', index: 0, key: 'email' }} />
+                  <span {...bindProps(emailRes, sectionContact, 0, 'text')}>{emailRes.content}</span>
                 </li>
               )}
-              {locatie && (
+              {locationRes.content && (
                 <li className="flex items-center gap-4">
                   <i className="fa-solid fa-location-dot text-accent w-5"></i>
-                  <EditableText value={locatie} cmsBind={{ file: 'contact', index: 0, key: 'location' }} />
+                  <span {...bindProps(locationRes, sectionContact, 0, 'text')}>{locationRes.content}</span>
                 </li>
               )}
-              {linkedin && (
+              {linkedinRes.content && (
                 <li className="flex items-center gap-4">
                   <i className="fa-brands fa-linkedin text-accent w-5"></i>
-                  <EditableLink
-                    label={contactInfo.linkedin_label || "LinkedIn Profile"}
-                    url={contactInfo.linkedin_url_url || linkedin}
-                    table="contact"
-                    field="linkedin_url"
-                    id={0}
+                  <a
+                    href={linkedinRes.content}
+                    {...bindProps(linkedinRes, sectionContact, 0, 'link')}
                     className="hover:text-white transition-colors"
-                  />
+                  >
+                    {contactInfo.linkedin_label || "LinkedIn Profile"}
+                  </a>
                 </li>
               )}
             </ul>
@@ -70,18 +80,18 @@ export default function Footer({ data }) {
 
           {/* Legal / Company Info */}
           <div className="space-y-6">
-            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-accent">
-              <EditableText value={settings.footer_legal_title || 'Bedrijfsgegevens'} cmsBind={{ file: 'site_settings', index: 0, key: 'footer_legal_title' }} />
+            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-accent" {...bindProps(legalTitleRes, sectionSettings, 0, 'text')}>
+              {legalTitleRes.content}
             </h4>
             <div className="space-y-4">
-              {btw && (
+              {btwRes.content && (
                 <p className="flex items-center gap-2">
                   <span className="text-slate-500">BTW:</span>
-                  <EditableText value={btw} cmsBind={{ file: 'contact', index: 0, key: 'btw_nummer' }} />
+                  <span {...bindProps(btwRes, sectionContact, 0, 'text')}>{btwRes.content}</span>
                 </p>
               )}
-              <p className="text-sm font-light leading-relaxed">
-                <EditableText value={settings.footer_text || 'Professionele website geleverd door Athena CMS Factory.'} cmsBind={{ file: 'site_settings', index: 0, key: 'footer_text' }} />
+              <p className="text-sm font-light leading-relaxed" {...bindProps(footerTextRes, sectionSettings, 0, 'text')}>
+                {footerTextRes.content}
               </p>
             </div>
           </div>
@@ -90,10 +100,10 @@ export default function Footer({ data }) {
 
         {/* Copyright Bar */}
         <div className="pt-12 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
-          <p>&copy; {new Date().getFullYear()} {naam}. Alle rechten voorbehouden.</p>
+          <p>&copy; {new Date().getFullYear()} {naamRes.content}. Alle rechten voorbehouden.</p>
           <div className="flex items-center gap-2 opacity-50">
             <img src="./athena-icon.svg" alt="Athena Logo" className="w-5 h-5" />
-            <EditableText value={settings.footer_credit_text || 'Gemaakt met Athena CMS Factory'} cmsBind={{ file: 'site_settings', index: 0, key: 'footer_credit_text' }} />
+            <span {...bindProps(creditTextRes, sectionSettings, 0, 'text')}>{creditTextRes.content}</span>
           </div>
         </div>
       </div>
